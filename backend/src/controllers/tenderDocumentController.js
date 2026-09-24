@@ -1,5 +1,6 @@
 import Tender from "../models/tender.js";
 import TenderDocument from "../models/TenderDocument.js";
+import { PDFParse }from "pdf-parse";
 
 export const uploadTenderDocument = async (req, res) => {
     try {
@@ -22,6 +23,19 @@ export const uploadTenderDocument = async (req, res) => {
                 message: "PDF file is required"
             });
         }
+
+        const fs = await import("fs/promises");
+
+        const pdfBuffer = await fs.readFile(req.file.path);
+
+        const parser = new PDFParse({
+            data: pdfBuffer
+        });
+        
+        const pdfData = await parser.getText();
+
+        const extractedText = pdfData.text;
+        console.log(extractedText);
 
         const document = await TenderDocument.create({
             tenderId,
